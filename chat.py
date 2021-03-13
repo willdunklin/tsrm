@@ -11,7 +11,7 @@ bot = commands.Bot(
     initial_channels=[os.environ['CHANNEL']]
 )
 
-q = queue.Queue(10)
+q = queue.Queue(100)
 
 @bot.event
 async def event_ready():
@@ -23,20 +23,36 @@ async def event_ready():
 async def event_message(context):
     if context.author.name.lower() == bot.nick.lower():
         return
-    q.put(context.content)
+    for x in context.content.split('+'):
+        q.put(x.strip())
     print(context.content)
     await bot.handle_commands(context)
 
-@bot.command(name='exit')
-async def exit(context):
-    exit(1)
+@bot.command(name='keys')
+async def keys(context):
+    await context.send('/me Valid keys: w, a, s, d, f, l, q, f1, f3, f5, space, ctrl, shift, 0-9')
+
+@bot.command(name='mouse')
+async def mouse(context):
+    await context.send('/me Mouse commands: up, left, right, down, <direction> <distance>, lclick, rclick, lpress, rpress')
+
+@bot.command(name='info')
+async def info(context):
+    await context.send('/me This bot lets you play Minecraft through twitch chat. Use !mouse and !keys for commands')
+
 
 class Chat:
     def run(self):
         bot.run()
 
-    def q_empty(self):
+    def empty(self):
         return q.empty()
     
-    def pop_q(self):
+    def pop(self):
         return q.get()
+
+    # nonfunctional
+    def close(self):
+        bot._ws.teardown()
+        print('teardown?')
+        exit(1)
