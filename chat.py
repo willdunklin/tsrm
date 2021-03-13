@@ -1,4 +1,6 @@
 import os
+import queue
+import threading
 from twitchio.ext import commands
 
 bot = commands.Bot(
@@ -9,6 +11,8 @@ bot = commands.Bot(
     initial_channels=[os.environ['CHANNEL']]
 )
 
+q = queue.Queue(10)
+
 @bot.event
 async def event_ready():
     print(f'{bot.nick} is up')
@@ -17,14 +21,22 @@ async def event_ready():
 
 @bot.event
 async def event_message(context):
-    print(context.content)
-    await bot.handle_commands(context)
     if context.author.name.lower() == bot.nick.lower():
         return
-    await context.channel.send(context.content)
+    q.put(context.content)
+    print(context.content)
+    await bot.handle_commands(context)
 
-@bot.command(name='test')
-async def test(context):
-    await context.send('test passed pog')
+@bot.command(name='exit')
+async def exit(context):
+    exit(1)
 
-bot.run()
+class Chat:
+    def run(self):
+        bot.run()
+
+    def q_empty(self):
+        return q.empty()
+    
+    def pop_q(self):
+        return q.get()

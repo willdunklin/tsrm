@@ -9,7 +9,10 @@ class Input:
     def __init__(self):
         self.keyboard = keyboard.Controller()
         self.mouse = mouse.Controller()
-        self.mouse_dist = 50
+        self.mouse_dist = 500
+
+        self.lpressed = False
+        self.rpressed = False
 
         self.key_table = {
             'a': 'a',
@@ -64,17 +67,22 @@ class Input:
             'down': 'mouse_down',
             'lclick': 'mouse_lclick',
             'rclick': 'mouse_rclick',
+            'lpress': 'mouse_lpress',
+            'rpress': 'mouse_rpress',
             'scroll': 'mouse_scroll',
         }
 
     def instruction(self, x):
-        if x not in self.key_table:
+        s = x.lower().split(' ')[0]
+        if s not in self.key_table:
             return
+        
         # input s
-        s = self.key_table[x.lower()]
+        s = self.key_table[s]
+
         # mouse commands
         if 'mouse' in s:
-            self.mouse_input(s)
+            self.mouse_input(s, x)
         # the rest of keyboard
         else:
             if '!' in s:
@@ -100,25 +108,40 @@ class Input:
         sleep(0.2)
         self.keyboard.release(k)
 
-    def mouse_input(self, x):
-        if x == 'mouse_up':
-            self.mouse.move(0, -self.mouse_dist)
-        elif x == 'mouse_left':
-            self.mouse.move(-self.mouse_dist, 0)
-        elif x == 'mouse_right':
-            self.mouse.move(self.mouse_dist, 0)
-        elif x == 'mouse_down':
-            self.mouse.move(0, self.mouse_dist)
-        elif x == 'mouse_lclick':
+    def mouse_input(self, s, x):
+        dist = self.mouse_dist
+        if(len(x.split(' ')) > 1):
+            if(x.split(' ')[1].isnumeric()):
+                dist = int(x.split(' ')[1])
+
+        print('distance: ', dist)
+        if s == 'mouse_up':
+            self.mouse.move(0, -dist)
+        elif s == 'mouse_left':
+            self.mouse.move(-dist, 0)
+        elif s == 'mouse_right':
+            self.mouse.move(dist, 0)
+        elif s == 'mouse_down':
+            self.mouse.move(0, dist)
+        elif s == 'mouse_lclick':
+            self.mouse.release(Button.left)
             self.mouse.click(Button.left, 1)
-        elif x == 'mouse_rclick':
+        elif s == 'mouse_rclick':
+            self.mouse.release(Button.right)
             self.mouse.click(Button.right, 1)
-        elif x == 'mouse_scroll':
+        elif s == 'mouse_lpress':
+            if self.lpressed:
+                self.lpressed = False
+                self.mouse.release(Button.left)
+            else:
+                self.lpressed = True
+                self.mouse.press(Button.left)
+        elif s == 'mouse_rpress':
+            if self.rpressed:
+                self.rpressed = False
+                self.mouse.release(Button.right)
+            else:
+                self.rpressed = True
+                self.mouse.press(Button.right)
+        elif s == 'mouse_scroll':
             self.mouse.scroll(0, 1)
-
-
-i = Input()
-sleep(4)
-for _ in range(10):
-    i.instruction('w')
-    sleep(1)
