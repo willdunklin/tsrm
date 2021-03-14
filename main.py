@@ -25,7 +25,6 @@ try:
             time.sleep(0.05)
         else:
             time.sleep(0.5)
-            print(halt_thread.isAlive())
 
     print('exiting')
     unpress()
