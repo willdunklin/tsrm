@@ -23,22 +23,22 @@ async def event_ready():
 async def event_message(context):
     if context.author.name.lower() == bot.nick.lower():
         return
-    for x in context.content.split('+'):
+    for x in context.content.split('+')[:10]:
         q.put(x.strip())
     print(context.content)
     await bot.handle_commands(context)
 
 @bot.command(name='keys')
 async def keys(context):
-    await context.send('/me Valid keys: w, a, s, d, f, l, q, f1, f3, f5, space, ctrl, shift, 0-9')
+    await context.send('valid keys: w, a, s, d, f, l, q, f1, f3, f5, space, ctrl, shift, 0-9')
 
 @bot.command(name='mouse')
 async def mouse(context):
-    await context.send('/me Mouse commands: up, left, right, down, <direction> <distance>, lclick, rclick, lpress, rpress')
+    await context.send('mouse commands: up, left, right, down, <direction> <distance>, lclick, rclick, lpress, rpress')
 
 @bot.command(name='info')
 async def info(context):
-    await context.send('/me This bot lets you play Minecraft through twitch chat. Use !mouse and !keys for commands')
+    await context.send('type commands from command lists !mouse and !keys and chain together commands with \'+\'')
 
 
 class Chat:
